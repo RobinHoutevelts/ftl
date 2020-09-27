@@ -1,0 +1,29 @@
+parameters:
+    config:
+        hostname: lndo.site
+        defaultPhpVersion: 7.4
+        defaultWebroot: public
+        dockerComposeBin: /usr/local/bin/docker-compose
+        brewBin: /usr/local/bin/brew
+        caddyFile: /usr/local/etc/Caddyfile
+        caddyDir: '$HOME/Library/Application Support/Caddy'
+        caddyService: caddy
+        fpmProxies:
+            '8.0': 'localhost:9180'
+            '7.4': 'localhost:9174'
+            '7.3': 'localhost:9173'
+            '7.2': 'localhost:9172'
+            '7.1': 'localhost:9171'
+            '7.0': 'localhost:9170'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $ftlConfig: '%config%'
+
+    App\Commands\:
+        resource: 'src/Commands'
+        tags: ['console.command']
+
