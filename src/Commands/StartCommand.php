@@ -73,7 +73,7 @@ class StartCommand extends Command
             unlink($autosaveFile);
         }
 
-        exec(sprintf('rm -rf "%s/certificates/local"', $this->config['caddyFile']));
+        exec(sprintf('rm -rf "%s/certificates/local"', $this->config['caddyDir']));
         exec($this->config['brewBin'] . ' services stop caddy');
         exec($this->config['brewBin'] . ' services start caddy');
     }
@@ -263,7 +263,7 @@ YAML;
             $compose
         );
 
-        $cmd = [$this->config['dockerComposeBin'], '-p', $info['name'], '-f', '.docker-compose.yml.dev'];
+        $cmd = [$this->config['dockerBin'], 'compose', '-p', $info['name'], '-f', '.docker-compose.yml.dev'];
 
         // docker-compose -p <projectName> -f .docker-compose.yml up -d
         $process = new Process(array_merge($cmd, ['up', '-d']), $this->directory);

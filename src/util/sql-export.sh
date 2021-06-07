@@ -17,7 +17,8 @@ if [[ ${POSTGRES_DB} != '' ]]; then
 else
   DATABASE=${MYSQL_DATABASE:-database}
   PORT=${MYSQL_PORT:-port}
-  USER=root
+  USER=${MYSQL_USER:-root}
+  PASSWORD=${MYSQL_PASSWORD:-}
 fi
 
 # Set the default filename
@@ -69,7 +70,7 @@ dump_db() {
     return
   fi
 
-  mysqldump --column-statistics=0 --opt --user=${USER} --host=${HOST} --port=${PORT} ${DATABASE} --no-data;
+  mysqldump --column-statistics=0 --opt --user=${USER} --password=${PASSWORD} --host=${HOST} --port=${PORT} ${DATABASE};
 
 }
 

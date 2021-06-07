@@ -128,12 +128,13 @@ if [ "$WIPE" == "true" ]; then
 
     # PURGE IT ALL! BURN IT TO THE GROUND!!!
     for t in $TABLES; do
-      if [ "$t" == "watchdog" ]; then
-        echo "Dropping $t table from $DATABASE database..."
-        $SQLSTART -e "DROP TABLE $t"
+      if [[ $t == view_* ]]; then
+        continue
       fi
+      echo "Dropping $t table from $DATABASE database..."
+      $SQLSTART -e "SET FOREIGN_KEY_CHECKS=0;DROP TABLE $t"
     done
-
+    $SQLSTART -e "SET FOREIGN_KEY_CHECKS=1"
   fi
 fi
 

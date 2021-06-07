@@ -68,7 +68,7 @@ Aight! You won't regret it!
 
 ### Docker
 
-FTL uses Docker to create a MariaDB database and Redis per project. You can download Docker for Mac at https://hub.docker.com/editions/community/docker-ce-desktop-mac which will install `docker` and `docker-compose`.
+FTL uses Docker to create a MariaDB database and Redis per project. You can download Docker for Mac at https://hub.docker.com/editions/community/docker-ce-desktop-mac which will install `docker`.
 
 ### Caddy 
 
@@ -76,7 +76,7 @@ FTL uses `caddy` as web server. So let's install it. We also create an empty Cad
 
 ```sh
 brew install caddy
-touch /usr/local/etc/Caddyfile
+touch /opt/homebrew/etc/Caddyfile
 ```
 
 ### drush
@@ -85,7 +85,7 @@ If you're gonna drush on your machine you'll need the `mysql-client` package. We
 
 ```sh
 brew install mysql-client
-echo 'export PATH="/usr/local/opt/mysql-client/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"' >> ~/.zshrc
 ```
 
 ### php
@@ -106,23 +106,17 @@ brew install shivammathur/php/php@7.0
 Then install some much-needed modules like xdebug and redis.
 
 ```sh
-/usr/local/opt/php@8.0/bin/pecl install redis xdebug-3.0.3
+/opt/homebrew/opt/php@8.0/bin/pecl install redis xdebug-3.0.4
 
-/usr/local/opt/php@7.4/bin/pecl install redis xdebug-3.0.3
+/opt/homebrew/opt/php@7.4/bin/pecl install redis xdebug-3.0.4
 
-/usr/local/opt/php@7.3/bin/pecl install redis xdebug-3.0.3
+/opt/homebrew/opt/php@7.3/bin/pecl install redis xdebug-3.0.4
 
-/usr/local/opt/php@7.2/bin/pecl install redis xdebug-2.9.8
+/opt/homebrew/opt/php@7.2/bin/pecl install redis xdebug-2.9.8
 
-/usr/local/opt/php@7.1/bin/pecl install redis xdebug-2.9.8
+/opt/homebrew/opt/php@7.1/bin/pecl install redis xdebug-2.9.8
 
-/usr/local/opt/php@7.0/bin/pecl install redis xdebug-2.8.1
-```
-
-Let's make sure your default php version is 8.0
-
-```sh
-brew link --force php@8.0
+/opt/homebrew/opt/php@7.0/bin/pecl install redis xdebug-2.8.1
 ```
 
 ### Configure php-packages
@@ -130,44 +124,45 @@ brew link --force php@8.0
 Now we need to configure the shit out of those things
 
 ```sh
-sudo nano /usr/local/etc/php/8.0/php.ini
+sudo nano /opt/homebrew/etc/php/8.0/php.ini
 ```
 
 Remove the two added extensions ( we'll add them back later )
+
+```diff
+- zend_extension="xdebug.so"
+- extension="redis.so"
+```
 
 And replace it with some configured shit.
 
 This will make sure you have an xdebug that will connect to your host.
 
-```diff
-- zend_extension="xdebug.so"
-- extension="redis.so"
-+ [xdebug]
-+ zend_extension="xdebug.so"
-+ xdebug.mode=develop,debug
-+ xdebug.start_with_request=yes
-+ xdebug.client_host=localhost
-+ xdebug.client_port=9000
-+ xdebug.log_level=0
-+ 
-+ [redis]
-+ extension="redis.so"
+```
+[xdebug]
+zend_extension="xdebug.so"
+xdebug.mode=develop,debug
+xdebug.start_with_request=yes
+xdebug.client_host=localhost
+xdebug.client_port=9000
+xdebug.log_level=0
+
+[redis]
+extension="redis.so"
 ```
 
 <details><summary>For xdebug 2.x (php 7.0/7.1/7.2)</summary>
 
 ```diff
-- zend_extension="xdebug.so"
-- extension="redis.so"
-+ [xdebug]
-+ zend_extension="xdebug.so"
-+ xdebug.remote_enable=1
-+ xdebug.remote_autostart=1
-+ xdebug.remote_host=localhost
-+ xdebug.remote_port=9000
-+ 
-+ [redis]
-+ extension="redis.so"
+[xdebug]
+zend_extension="xdebug.so"
+xdebug.remote_enable=1
+xdebug.remote_autostart=1
+xdebug.remote_host=localhost
+xdebug.remote_port=9000
+
+[redis]
+extension="redis.so"
 ```
 
 </details>
@@ -186,7 +181,7 @@ Also increase your max memory from 128M to 1G by looking for `memory_limit` and 
 We need to define a port we'll listen on.
 
 ```sh
-sudo nano /usr/local/etc/php/8.0/php-fpm.d/www.conf
+sudo nano /opt/homebrew/etc/php/8.0/php-fpm.d/www.conf
 ````
 
 Replace the default listing port from `9000` to `9180`
@@ -251,10 +246,11 @@ You can configure FTL in the `src/services.yml` file.
 
 Alias `php` to a script that loads correct versions based on your `.lando.yml` file.
 
-I have the following line in my `~/.zshrc` file
+I have the following lines in my `~/.zshrc` file
 
 ```sh
 export PATH=$HOME/bin:$PATH
+export PATH=$HOME/.composer/vendor/bin:$PATH
 ```
 
 It makes sure all executables are first searched for in my `~/bin` directory. There I have a `~/bin/php` file that calls the correct `php` version based on the `.lando.yml` file in my project git root.
@@ -279,11 +275,11 @@ fi
 PHP_VERSION=$(echo "$PHP_VERSION" | sed 's/[^0-9]*//g')
 PHP_VERSION="$(echo "$PHP_VERSION" | cut -c1,1).$(echo "$PHP_VERSION" | cut -c2,2)"
 
-if [[ ! -f "/usr/local/opt/php@$PHP_VERSION/bin/php" ]]; then
+if [[ ! -f "/opt/homebrew/opt/php@$PHP_VERSION/bin/php" ]]; then
    PHP_VERSION=${DEFAULT_PHP_VERSION}
 fi
 
-PHP_BIN="/usr/local/opt/php@$PHP_VERSION/bin/php"
+PHP_BIN="/opt/homebrew/opt/php@$PHP_VERSION/bin/php"
 
 ${PHP_BIN} "$@"
 exit $?
@@ -300,8 +296,8 @@ chmod +x ~/bin/php
 I do the same for the ftl binary. Sometimes I got an error some shared libaries aren't loaded when using php. This is because we have multiple php versions installed. 
 
 ```
-dyld: Library not loaded: /usr/local/opt/icu4c/lib/libicuio.67.dylib
-  Referenced from: /usr/local/opt/php@7.4/bin/php
+dyld: Library not loaded: /opt/homebrew/opt/icu4c/lib/libicuio.67.dylib
+  Referenced from: /opt/homebrew/opt/php@7.4/bin/php
   Reason: image not found
 ```
 
@@ -312,7 +308,8 @@ Hardcode the version in `~/bin/ftl`. Make sure you also change the path to ftl. 
 ```bash
 #!/usr/bin/env bash
 
-brew switch icu4c 67.1  > /dev/null 2>&1
+# Uncomment this if you have icu4c version mismatches
+# brew switch icu4c 67.1  > /dev/null 2>&1
 
 $HOME/Projects/ftl/ftl "$@"
 exit $?
@@ -323,3 +320,10 @@ Make sure to make it executable
 ```sh
 chmod +x ~/bin/ftl
 ```
+
+### Xdebug
+
+Xdebug is preconfigured. Configure PHPStorm to use it.
+
+
+

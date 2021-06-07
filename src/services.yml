@@ -3,9 +3,9 @@ parameters:
         hostname: lndo.site
         defaultPhpVersion: 7.4
         defaultWebroot: public
-        dockerComposeBin: /usr/local/bin/docker-compose
+        dockerBin: /usr/local/bin/docker
         brewBin: /usr/local/bin/brew
-        caddyFile: /usr/local/etc/Caddyfile
+        caddyFile: /opt/homebrew/etc/Caddyfile
         caddyDir: '$HOME/Library/Application Support/Caddy'
         caddyService: caddy
         fpmProxies:

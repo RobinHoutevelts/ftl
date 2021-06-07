@@ -66,7 +66,9 @@ class DbImportCommand extends Command
             $this->directory,
             [
                 'MYSQL_DATABASE' => $database,
-                'MYSQL_PORT' => $env['DB_PORT'],
+                'MYSQL_PORT' => $env['DB_PORT'] ?? 3306,
+                'MYSQL_USER' => $env['DB_USERNAME'] ?? 'root',
+                'MYSQL_PASSWORD' => $env['DB_PASSWORD'] ?? '',
             ]
         );
         $process->setTimeout(null);

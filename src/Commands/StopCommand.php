@@ -121,7 +121,7 @@ class StopCommand extends Command
 
     protected function stopDockerServices(array $info): void
     {
-        $cmd = [$this->config['dockerComposeBin'], '-p', $info['name'], '-f', '.docker-compose.yml.dev'];
+        $cmd = [$this->config['dockerBin'], 'compose', '-p', $info['name'], '-f', '.docker-compose.yml.dev'];
 
         // docker-compose -p <projectName> -f .docker-compose.yml stop
         $process = new Process(array_merge($cmd, ['stop']), $this->directory);

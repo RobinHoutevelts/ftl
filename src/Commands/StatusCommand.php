@@ -161,7 +161,7 @@ class StatusCommand extends Command
 
     protected function getServiceStatus($name): string
     {
-        $cmd = [$this->config['dockerComposeBin'], '-p', $name, '-f', '.docker-compose.yml.dev'];
+        $cmd = [$this->config['dockerBin'], 'compose',  '-p', $name, '-f', '.docker-compose.yml.dev'];
         $process = new Process(array_merge($cmd, ['ps']), $this->directory);
         $process->run();
         return $process->getOutput();
@@ -169,7 +169,7 @@ class StatusCommand extends Command
 
     protected function getPortForwards($name): array
     {
-        $cmd = [$this->config['dockerComposeBin'], '-p', $name, '-f', '.docker-compose.yml.dev'];
+        $cmd = [$this->config['dockerBin'], 'compose', '-p', $name, '-f', '.docker-compose.yml.dev'];
         $ports = [];
         foreach (['redis' => 6379, 'mysql' => 3306] as $service => $port) {
             // docker-compose -p <projectName> -f .docker-compose.yml.dev port redis 6379
