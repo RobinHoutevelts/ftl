@@ -1,11 +1,11 @@
 parameters:
     config:
-        hostname: lndo.site
+        hostname: dev.kzen.pro
         defaultPhpVersion: 7.4
         defaultWebroot: public
         dockerBin: /usr/local/bin/docker
         brewBin: /usr/local/bin/brew
-        caddyFile: /opt/homebrew/etc/Caddyfile
+        caddyFile: /usr/local/etc/Caddyfile
         caddyDir: '$HOME/Library/Application Support/Caddy'
         caddyService: caddy
         fpmProxies:
