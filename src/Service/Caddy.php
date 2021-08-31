@@ -106,6 +106,36 @@ TXT;
         );
     }
 
+    public function removeSiteFromCaddy(): void
+    {
+        $importLine = sprintf('import %s', $this->caddyFile);
+
+        $exists = false;
+        // Read all existing lines from the global caddyFile
+        $imports = array_filter(
+            array_map(
+                static function ($line) use (&$exists, $importLine) {
+                    $line = trim($line);
+                    $exists = $exists || $line === $importLine;
+                    return $line;
+                },
+                file($this->config->config['caddyFile'], FILE_SKIP_EMPTY_LINES)
+            )
+        );
+
+        // If the project's caddyFile is not imported, do an early return
+        if (!$exists) {
+            return;
+        }
+
+        // Remove the project's caddyFile from the global caddyFile
+        $imports = array_diff($imports, [$importLine]);
+        file_put_contents(
+            $this->config->config['caddyFile'],
+            implode("\n", $imports)
+        );
+    }
+
     public function checkRootCert(OutputInterface $output): void
     {
         $certFile = sprintf('%s/pki/authorities/local/root.crt', $this->config->config['caddyDir']);

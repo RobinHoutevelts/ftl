@@ -56,12 +56,7 @@ YAML;
             $compose
         );
 
-        $cmd = [
-            $this->config->config['dockerBin'], 'compose', '-p', $this->config->name, '-f', '.docker-compose.yml.dev'
-        ];
-
-        // docker-compose -p <projectName> -f .docker-compose.yml up -d
-        $process = new Process(array_merge($cmd, ['up', '-d']), $this->config->projectDir);
+        $process = $this->process(['up', '-d']);
         if ($process->run() !== 0) {
             throw new \RuntimeException(
                 sprintf('Error while booting docker-compose services.: %s', $process->getOutput())
@@ -71,7 +66,7 @@ YAML;
         $ports = [];
         foreach (['redis' => 6379, 'mysql' => 3306] as $service => $port) {
             // docker-compose -p <projectName> -f .docker-compose.yml port redis 6379
-            $process = new Process(array_merge($cmd, ['port', $service, $port]), $this->config->projectDir);
+            $process = $this->process(['port', $service, $port]);
             if ($process->run() !== 0) {
                 throw new \RuntimeException(sprintf('Error while fetching %s port.', $service));
             }
@@ -87,4 +82,19 @@ YAML;
         return $ports;
     }
 
+    public function stopDockerServices(): void
+    {
+        $this->process(['stop'])->run();
+    }
+
+    private function process(array $command): Process
+    {
+        $dockerCommand = [
+            // docker-compose -p <projectName> -f .docker-compose.yml
+            $this->config->config['dockerBin'], 'compose', '-p', $this->config->name, '-f', '.docker-compose.yml.dev'
+        ];
+
+        // docker-compose -p <projectName> -f .docker-compose.yml <command>
+        return new Process(array_merge($dockerCommand, $command), $this->config->projectDir);
+    }
 }
