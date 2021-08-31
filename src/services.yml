@@ -27,3 +27,8 @@ services:
         resource: 'src/Commands'
         tags: ['console.command']
 
+    App\Service\:
+        resource: 'src/Service'
+
+    App\Service\Config:
+        factory: ['App\Service\Config', 'createConfig']
