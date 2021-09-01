@@ -2,18 +2,33 @@
 
 namespace App\Service;
 
+use App\Service\Caddy\CaddyLinux;
+use App\Service\Caddy\CaddyMac;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Caddy
+abstract class Caddy
 {
-    private Config $config;
-    private string $caddyFile;
+    protected Config $config;
+    protected string $caddyFile;
 
     public function __construct(
         Config $config
     ) {
         $this->config = $config;
         $this->caddyFile = sprintf('%s/.caddyFile.dev', $config->projectDir);
+    }
+
+    public static function create(Config $config, ?string $os = null)
+    {
+        $os = $os ?? PHP_OS_FAMILY;
+        if ($os === 'Darwin') {
+            return new CaddyMac($config);
+        }
+        if ($os === 'Linux') {
+            return new CaddyLinux($config);
+        }
+
+        throw new \UnexpectedValueException('No Caddy implementation for Os "' . $os . '"');
     }
 
     public function restartCaddy(): void
@@ -24,8 +39,7 @@ class Caddy
         }
 
         exec(sprintf('rm -rf "%s/certificates/local"', $this->config->config['caddyDir']));
-        exec($this->config->config['brewBin'] . ' services stop caddy');
-        exec($this->config->config['brewBin'] . ' services start caddy');
+        $this->doRestartCaddy();
     }
 
     public function addSiteToCaddy(): void
@@ -116,30 +130,6 @@ TXT;
 
     public function checkRootCert(OutputInterface $output): void
     {
-        $certFile = sprintf('%s/pki/authorities/local/root.crt', $this->config->config['caddyDir']);
-        if (!file_exists($certFile)) {
-            $output->writeln('No Caddy root certificate found.');
-            return;
-        }
-
-        $cmdOutput = null;
-        $exitCode = null;
-        exec('security find-certificate -a | grep -q "Caddy Local Authority"', $cmdOutput, $exitCode);
-
-        if ($exitCode === 0) {
-            return;
-        }
-
-        $addCmd = sprintf(
-            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "%s"',
-            $certFile
-        );
-
-        // Todo: can Symfony apps call sudo and have the user enter the password?
-
-        $output->writeln('Trust your self-signed ssl certificate so you can use HTTPS');
-        $output->writeln('Run the following command:');
-        $output->writeln($addCmd);
     }
 
     public function isSiteInCaddy(): bool
@@ -154,6 +144,8 @@ TXT;
 
         return $exists;
     }
+
+    abstract protected function doRestartCaddy(): void;
 
     private function parseGlobalCaddyFile(string $importLine): array
     {

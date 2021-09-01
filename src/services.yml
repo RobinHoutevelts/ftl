@@ -32,3 +32,6 @@ services:
 
     App\Service\Config:
         factory: ['App\Service\Config', 'createConfig']
+
+    App\Service\Caddy:
+        factory: ['App\Service\Caddy', 'create']
