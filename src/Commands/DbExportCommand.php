@@ -2,8 +2,8 @@
 
 namespace App\Commands;
 
+use App\Service\Config;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,14 +13,14 @@ use Symfony\Component\Process\Process;
 class DbExportCommand extends Command
 {
     protected static $defaultName = 'db-export';
-    protected array $config;
-    protected string $directory;
+    private Config $config;
 
-    public function __construct(array $ftlConfig, string $name = null)
+    public function __construct(Config $config, string $name = null)
     {
         parent::__construct($name);
-        $this->config = $ftlConfig;
         $this->setDescription('Export the database');
+
+        $this->config = $config;
     }
 
     protected function configure()
@@ -38,17 +38,6 @@ class DbExportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $directory = getcwd();
-        if (!file_exists('.lando.yml')) {
-            $directory = exec('git rev-parse --show-toplevel 2> /dev/null') ?: '';
-            if (!$directory) {
-                throw new \RuntimeException(
-                    'Can\'t find root directory of project. Did you run "git init"?'
-                );
-            }
-        }
-        $this->directory = $directory;
-
         $env = $this->readEnv();
         $database = $input->getOption('database') ?: $env['DB_DATABASE'];
 
@@ -56,7 +45,7 @@ class DbExportCommand extends Command
 
         $process = new Process(
             [$importCmd],
-            $this->directory,
+            $this->config->projectDir,
             [
                 'MYSQL_DATABASE' => $database,
                 'MYSQL_PORT' => $env['DB_PORT'] ?? 3306,
@@ -81,7 +70,7 @@ class DbExportCommand extends Command
 
     protected function readEnv(): array
     {
-        $dotEnvFile = sprintf('%s/.env', $this->directory);
+        $dotEnvFile = sprintf('%s/.env', $this->config->projectDir);
         if (!file_exists($dotEnvFile)) {
             throw new \RuntimeException(sprintf('Could not find your .env file at "%s"', $dotEnvFile));
         }
