@@ -97,6 +97,12 @@ YAML;
         return $ports;
     }
 
+    public function destroyDockerServices(): void
+    {
+        // docker-compose -p <projectName> -f .docker-compose.yml down --volumes
+        $this->process(['down', '--volumes'])->run();
+    }
+
     private function process(array $command): Process
     {
         $dockerCommand = [
