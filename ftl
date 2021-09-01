@@ -14,6 +14,9 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 $container = new ContainerBuilder();
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('src/services.yml');
+if (file_exists($customConfig = __DIR__ . '/config.yml')) {
+    $loader->load($customConfig);
+}
 
 $container->addCompilerPass(new AddConsoleCommandPass());
 $container->addCompilerPass(
