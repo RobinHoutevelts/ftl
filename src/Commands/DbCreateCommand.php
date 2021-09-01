@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Service\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,14 +13,14 @@ use Symfony\Component\Process\Process;
 class DbCreateCommand extends Command
 {
     protected static $defaultName = 'db-create';
-    protected array $config;
-    protected string $directory;
+    private Config $config;
 
-    public function __construct(array $ftlConfig, string $name = null)
+    public function __construct(Config $config, string $name = null)
     {
         parent::__construct($name);
-        $this->config = $ftlConfig;
         $this->setDescription('Create an empty database');
+
+        $this->config = $config;
     }
 
     protected function configure()
@@ -36,17 +37,6 @@ class DbCreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $directory = getcwd();
-        if (!file_exists('.lando.yml')) {
-            $directory = exec('git rev-parse --show-toplevel 2> /dev/null') ?: '';
-            if (!$directory) {
-                throw new \RuntimeException(
-                    'Can\'t find root directory of project. Did you run "git init"?'
-                );
-            }
-        }
-        $this->directory = $directory;
-
         $env = $this->readEnv();
         $database = $input->getArgument('database');
 
@@ -62,7 +52,7 @@ class DbCreateCommand extends Command
 
         $process = new Process(
             array_merge($cmd, ['-e', $createCmd]),
-            $this->directory
+            $this->config->projectDir
         );
         $process->setTimeout(null);
         $process->run();
@@ -75,7 +65,7 @@ class DbCreateCommand extends Command
 
     protected function readEnv(): array
     {
-        $dotEnvFile = sprintf('%s/.env', $this->directory);
+        $dotEnvFile = sprintf('%s/.env', $this->config->projectDir);
         if (!file_exists($dotEnvFile)) {
             throw new \RuntimeException(sprintf('Could not find your .env file at "%s"', $dotEnvFile));
         }
