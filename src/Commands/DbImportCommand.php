@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Service\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,14 +14,14 @@ use Symfony\Component\Process\Process;
 class DbImportCommand extends Command
 {
     protected static $defaultName = 'db-import';
-    protected array $config;
-    protected string $directory;
+    private Config $config;
 
-    public function __construct(array $ftlConfig, string $name = null)
+    public function __construct(Config $config, string $name = null)
     {
         parent::__construct($name);
-        $this->config = $ftlConfig;
         $this->setDescription('Import an existing database');
+
+        $this->config = $config;
     }
 
     protected function configure()
@@ -43,17 +44,6 @@ class DbImportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $directory = getcwd();
-        if (!file_exists('.lando.yml')) {
-            $directory = exec('git rev-parse --show-toplevel 2> /dev/null') ?: '';
-            if (!$directory) {
-                throw new \RuntimeException(
-                    'Can\'t find root directory of project. Did you run "git init"?'
-                );
-            }
-        }
-        $this->directory = $directory;
-
         $file = $input->getArgument('file');
 
         $importCmd = __DIR__ . '/../util/sql-import.sh';
@@ -63,7 +53,7 @@ class DbImportCommand extends Command
 
         $process = new Process(
             [$importCmd, $file],
-            $this->directory,
+            $this->config->projectDir,
             [
                 'MYSQL_DATABASE' => $database,
                 'MYSQL_PORT' => $env['DB_PORT'] ?? 3306,
@@ -88,7 +78,7 @@ class DbImportCommand extends Command
 
     protected function readEnv(): array
     {
-        $dotEnvFile = sprintf('%s/.env', $this->directory);
+        $dotEnvFile = sprintf('%s/.env', $this->config->projectDir);
         if (!file_exists($dotEnvFile)) {
             throw new \RuntimeException(sprintf('Could not find your .env file at "%s"', $dotEnvFile));
         }
