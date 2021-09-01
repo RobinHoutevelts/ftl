@@ -48,7 +48,7 @@ YAML;
         return $compose;
     }
 
-    public function startDockerServices(): array
+    public function startDockerServices(): void
     {
         $compose = $this->createMysqlAndRedisDockerCompose();
         file_put_contents(
@@ -62,10 +62,25 @@ YAML;
                 sprintf('Error while booting docker-compose services.: %s', $process->getOutput())
             );
         }
+    }
 
+    public function stopDockerServices(): void
+    {
+        $this->process(['stop'])->run();
+    }
+
+    public function getServiceStatus(): string
+    {
+        $process = $this->process(['ps']);
+        $process->run();
+        return $process->getOutput();
+    }
+
+    public function getPortForwards(): array
+    {
         $ports = [];
         foreach (['redis' => 6379, 'mysql' => 3306] as $service => $port) {
-            // docker-compose -p <projectName> -f .docker-compose.yml port redis 6379
+            // docker-compose -p <projectName> -f .docker-compose.yml.dev port redis 6379
             $process = $this->process(['port', $service, $port]);
             if ($process->run() !== 0) {
                 throw new \RuntimeException(sprintf('Error while fetching %s port.', $service));
@@ -80,11 +95,6 @@ YAML;
         }
 
         return $ports;
-    }
-
-    public function stopDockerServices(): void
-    {
-        $this->process(['stop'])->run();
     }
 
     private function process(array $command): Process

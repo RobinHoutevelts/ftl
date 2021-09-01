@@ -34,7 +34,8 @@ class StartCommand extends Command
         $this->caddy->restartCaddy();
 
         $output->writeln('Starting docker services ( redis and mysql )');
-        $ports = $this->docker->startDockerServices();
+        $this->docker->startDockerServices();
+        $ports = $this->docker->getPortForwards();
         if ($ports) {
             $output->writeln('Updating .env');
             $this->replaceDotEnv($ports);

@@ -78,20 +78,9 @@ TXT;
 
     public function importCaddyFile(): void
     {
-        $importLine = sprintf('import %s', $this->caddyFile);
+        $importLine = $this->getImportLine();
 
-        $exists = false;
-        // Read all existing lines from the global caddyFile
-        $imports = array_filter(
-            array_map(
-                static function ($line) use (&$exists, $importLine) {
-                    $line = trim($line);
-                    $exists = $exists || $line === $importLine;
-                    return $line;
-                },
-                file($this->config->config['caddyFile'], FILE_SKIP_EMPTY_LINES)
-            )
-        );
+        [$imports, $exists] = $this->parseGlobalCaddyFile($importLine);
 
         // If the project's caddyFile is already imported, do an early return
         if ($exists) {
@@ -108,20 +97,9 @@ TXT;
 
     public function removeSiteFromCaddy(): void
     {
-        $importLine = sprintf('import %s', $this->caddyFile);
+        $importLine = $this->getImportLine();
 
-        $exists = false;
-        // Read all existing lines from the global caddyFile
-        $imports = array_filter(
-            array_map(
-                static function ($line) use (&$exists, $importLine) {
-                    $line = trim($line);
-                    $exists = $exists || $line === $importLine;
-                    return $line;
-                },
-                file($this->config->config['caddyFile'], FILE_SKIP_EMPTY_LINES)
-            )
-        );
+        [$imports, $exists] = $this->parseGlobalCaddyFile($importLine);
 
         // If the project's caddyFile is not imported, do an early return
         if (!$exists) {
@@ -164,4 +142,40 @@ TXT;
         $output->writeln($addCmd);
     }
 
+    public function isSiteInCaddy(): bool
+    {
+        if (!file_exists($this->caddyFile)) {
+            return false;
+        }
+
+        $importLine = $this->getImportLine();
+
+        [$imports, $exists] = $this->parseGlobalCaddyFile($importLine);
+
+        return $exists;
+    }
+
+    private function parseGlobalCaddyFile(string $importLine): array
+    {
+        $exists = false;
+        // Read all existing lines from the global caddyFile
+        $imports = array_filter(
+            array_map(
+                static function ($line) use (&$exists, $importLine) {
+                    $line = trim($line);
+                    $exists = $exists || $line === $importLine;
+                    return $line;
+                },
+                file($this->config->config['caddyFile'], FILE_SKIP_EMPTY_LINES)
+            )
+        );
+
+        // If the project's caddyFile is already imported, do an early return
+        return [$imports, $exists];
+    }
+
+    private function getImportLine(): string
+    {
+        return sprintf('import %s', $this->caddyFile);
+    }
 }
