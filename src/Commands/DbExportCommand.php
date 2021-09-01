@@ -3,24 +3,26 @@
 namespace App\Commands;
 
 use App\Service\Config;
+use App\Service\DotEnv;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Process\Process;
 
 class DbExportCommand extends Command
 {
     protected static $defaultName = 'db-export';
     private Config $config;
+    private DotEnv $dotenv;
 
-    public function __construct(Config $config, string $name = null)
+    public function __construct(Config $config, DotEnv $dotenv, string $name = null)
     {
         parent::__construct($name);
         $this->setDescription('Export the database');
 
         $this->config = $config;
+        $this->dotenv = $dotenv;
     }
 
     protected function configure()
@@ -41,10 +43,8 @@ class DbExportCommand extends Command
         $env = $this->readEnv();
         $database = $input->getOption('database') ?: $env['DB_DATABASE'];
 
-        $importCmd = __DIR__ . '/../util/sql-export.sh';
-
         $process = new Process(
-            [$importCmd],
+            $this->getCommand($input),
             $this->config->projectDir,
             [
                 'MYSQL_DATABASE' => $database,
@@ -70,11 +70,7 @@ class DbExportCommand extends Command
 
     protected function readEnv(): array
     {
-        $dotEnvFile = sprintf('%s/.env', $this->config->projectDir);
-        if (!file_exists($dotEnvFile)) {
-            throw new \RuntimeException(sprintf('Could not find your .env file at "%s"', $dotEnvFile));
-        }
-        $env = (new Dotenv())->parse(file_get_contents($dotEnvFile));
+        $env = $this->dotenv->readEnv();
 
         if (
             !isset($env['DB_HOST'])
@@ -85,5 +81,10 @@ class DbExportCommand extends Command
         }
 
         return $env;
+    }
+
+    protected function getCommand(InputInterface $input): array
+    {
+        return [__DIR__ . '/../util/sql-export.sh'];
     }
 }

@@ -3,24 +3,26 @@
 namespace App\Commands;
 
 use App\Service\Config;
+use App\Service\DotEnv;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Process\Process;
 
 class DbCreateCommand extends Command
 {
     protected static $defaultName = 'db-create';
     private Config $config;
+    private DotEnv $dotenv;
 
-    public function __construct(Config $config, string $name = null)
+    public function __construct(Config $config, DotEnv $dotenv, string $name = null)
     {
         parent::__construct($name);
         $this->setDescription('Create an empty database');
 
         $this->config = $config;
+        $this->dotenv = $dotenv;
     }
 
     protected function configure()
@@ -65,11 +67,7 @@ class DbCreateCommand extends Command
 
     protected function readEnv(): array
     {
-        $dotEnvFile = sprintf('%s/.env', $this->config->projectDir);
-        if (!file_exists($dotEnvFile)) {
-            throw new \RuntimeException(sprintf('Could not find your .env file at "%s"', $dotEnvFile));
-        }
-        $env = (new Dotenv())->parse(file_get_contents($dotEnvFile));
+        $env = $this->dotenv->readEnv();
 
         if (
             !isset($env['DB_HOST'])
