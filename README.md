@@ -95,6 +95,7 @@ Let's install some php on your machine
 ```sh
 brew tap shivammathur/php
 
+brew install shivammathur/php/php@8.1
 brew install shivammathur/php/php@8.0
 brew install shivammathur/php/php@7.4
 brew install shivammathur/php/php@7.3
@@ -106,11 +107,13 @@ brew install shivammathur/php/php@7.0
 Then install some much-needed modules like xdebug and redis.
 
 ```sh
-/opt/homebrew/opt/php@8.0/bin/pecl install redis xdebug-3.0.4
+/opt/homebrew/opt/php@8.1/bin/pecl install redis xdebug-3.1.2
 
-/opt/homebrew/opt/php@7.4/bin/pecl install redis xdebug-3.0.4
+/opt/homebrew/opt/php@8.0/bin/pecl install redis xdebug-3.1.2
 
-/opt/homebrew/opt/php@7.3/bin/pecl install redis xdebug-3.0.4
+/opt/homebrew/opt/php@7.4/bin/pecl install redis xdebug-3.1.2
+
+/opt/homebrew/opt/php@7.3/bin/pecl install redis xdebug-3.1.2
 
 /opt/homebrew/opt/php@7.2/bin/pecl install redis xdebug-2.9.8
 
@@ -124,7 +127,7 @@ Then install some much-needed modules like xdebug and redis.
 Now we need to configure the shit out of those things
 
 ```sh
-sudo nano /opt/homebrew/etc/php/8.0/php.ini
+sudo nano /opt/homebrew/etc/php/8.1/php.ini
 ```
 
 Remove the two added extensions ( we'll add them back later )
@@ -174,24 +177,24 @@ Also increase your max memory from 128M to 1G by looking for `memory_limit` and 
 + memory_limit = 1G
 ```
 
-*Perform the same steps also for php 7.0, 7.1, 7.2, 7.3 and 7.4 ( they each have their own php.ini file)*
+*Perform the same steps also for php 7.0, 7.1, 7.2, 7.3, 7.4 and 8.0 ( they each have their own php.ini file)*
 
 ### Configure php-fpm
 
 We need to define a port we'll listen on.
 
 ```sh
-sudo nano /opt/homebrew/etc/php/8.0/php-fpm.d/www.conf
+sudo nano /opt/homebrew/etc/php/8.1/php-fpm.d/www.conf
 ````
 
-Replace the default listing port from `9000` to `9180`
+Replace the default listing port from `9000` to `9181`
 
 ```diff
 - ;listen = 127.0.0.1:9000
-+ listen = 127.0.0.1:9180
++ listen = 127.0.0.1:9181
 ```
 
-Do the same for php 7.0, 7.1, 7.2, 7.3, 7.4 but use ports `9170`, `9171`, `9172`, `9173`, `9174`
+Do the same for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0 but use ports `9170`, `9171`, `9172`, `9173`, `9174`, `9180`
 
 ### Restart the services
 
@@ -200,6 +203,7 @@ Your php-processes will run as `root` and you'll get random permission errors wh
 
 ```sh
 brew services restart php
+brew services restart php@8.0
 brew services restart php@7.4
 brew services restart php@7.3
 brew services restart php@7.2
@@ -238,7 +242,11 @@ Then add the following to the gitignore file:
 
 ### Configure FTL
 
-You can configure FTL in the `src/services.yml` file.
+You can configure FTL by copying the `src/services.yml` file to `config.yml` in the root directory.
+
+```bash
+cp src/services.yml ./config.yml
+```
 
 ## ProTip
 
@@ -324,6 +332,3 @@ chmod +x ~/bin/ftl
 ### Xdebug
 
 Xdebug is preconfigured. Configure PHPStorm to use it.
-
-
-

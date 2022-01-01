@@ -9,6 +9,7 @@ parameters:
         caddyDir: '$HOME/Library/Application Support/Caddy'
         caddyService: caddy
         fpmProxies:
+            '8.1': 'localhost:9181'
             '8.0': 'localhost:9180'
             '7.4': 'localhost:9174'
             '7.3': 'localhost:9173'
