@@ -9,4 +9,5 @@ node_modules/
 *.code-workspace
 
 .lando.yml
+.ftl.yml
 /config.yml

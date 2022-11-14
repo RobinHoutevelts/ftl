@@ -18,7 +18,7 @@ The upside is:
 
 ## Usage
 
-Just drop a `.lndo.yml` file in the root of your project and run `ftl start`
+Just drop a `.ftl.yml` file in the root of your project and run `ftl start`
 
 ```yaml
 name: project
@@ -232,7 +232,7 @@ git config --global core.excludesfile ~/.gitignore_global
 Then add the following to the gitignore file:
 
 ```
-.lando.yml
+.ftl.yml
 .caddyFile.dev
 .docker-compose.yml.dev
 ```
@@ -249,7 +249,7 @@ cp src/services.yml ./config.yml
 
 ### Alias `php` binary
 
-Alias `php` to a script that loads correct versions based on your `.lando.yml` file.
+Alias `php` to a script that loads correct versions based on your `.ftl.yml` file.
 
 I have the following lines in my `~/.zshrc` file
 
@@ -258,7 +258,7 @@ export PATH=$HOME/bin:$PATH
 export PATH=$HOME/.composer/vendor/bin:$PATH
 ```
 
-It makes sure all executables are first searched for in my `~/bin` directory. There I have a `~/bin/php` file that calls the correct `php` version based on the `.lando.yml` file in my project git root.
+It makes sure all executables are first searched for in my `~/bin` directory. There I have a `~/bin/php` file that calls the correct `php` version based on the `.ftl.yml` file in my project git root.
 
 ```sh
 #!/usr/bin/env bash
@@ -271,10 +271,10 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
 fi
 
 PHP_VERSION="$DEFAULT_PHP_VERSION"
-if [[ -f ".lando.yml" ]]; then
-    PHP_VERSION=$(cat ".lando.yml" | grep "php:" | cut -d ":" -f2)
-elif [[ -f "$ROOTDIR/.lando.yml" ]]; then
-    PHP_VERSION=$(cat "$ROOTDIR/.lando.yml" | grep "php:" | cut -d ":" -f2)
+if [[ -f ".ftl.yml" ]]; then
+    PHP_VERSION=$(cat ".ftl.yml" | grep "php:" | cut -d ":" -f2)
+elif [[ -f "$ROOTDIR/.ftl.yml" ]]; then
+    PHP_VERSION=$(cat "$ROOTDIR/.ftl.yml" | grep "php:" | cut -d ":" -f2)
 fi
 
 PHP_VERSION=$(echo "$PHP_VERSION" | sed 's/[^0-9]*//g')

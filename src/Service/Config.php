@@ -6,7 +6,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Config
 {
-    public const LANDO_FILENAME = '.lando.yml';
+    public const LANDO_FILENAME = '.ftl.yml';
 
     // Todo: readonly in php 8.1
     public string $name;
@@ -38,7 +38,7 @@ class Config
     public static function createConfig(array $ftlConfig): self
     {
         $directory = getcwd();
-        if (!file_exists('.lando.yml')) {
+        if (!file_exists('.ftl.yml')) {
             $directory = exec('git rev-parse --show-toplevel 2> /dev/null') ?: '';
             if (!$directory) {
                 throw new \RuntimeException(
@@ -51,17 +51,17 @@ class Config
 
         if (!file_exists($landoFile)) {
             throw new \RuntimeException(
-                'Can\'t find .lando.yml file in root directory of project.'
+                'Can\'t find .ftl.yml file in root directory of project.'
             );
         }
 
         $lando = Yaml::parse(file_get_contents($landoFile));
 
         if (empty($lando)) {
-            throw new \RuntimeException('Could not parse .lando.yml content. Is it valid yaml?');
+            throw new \RuntimeException('Could not parse .ftl.yml content. Is it valid yaml?');
         }
         if (empty($lando['name'])) {
-            throw new \RuntimeException('.lando.yml does not contain the name of the project.');
+            throw new \RuntimeException('.ftl.yml does not contain the name of the project.');
         }
 
         $phpVersion = $lando['config']['php'] ?? $ftlConfig['defaultPhpVersion'];
