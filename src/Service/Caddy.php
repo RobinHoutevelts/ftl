@@ -38,7 +38,6 @@ abstract class Caddy
             unlink($autosaveFile);
         }
 
-        exec(sprintf('rm -rf "%s/certificates/local"', $this->config->config['caddyDir']));
         $this->doRestartCaddy();
     }
 

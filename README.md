@@ -56,10 +56,6 @@ If your project contains a `.env` file, the `DB_PORT` value will get updated aut
 `ftl db-export`  | Export database
 `ftl db-import`  | Import an existing database
 
-#### Weird shit
-
-The Caddy SSL cert is only valid for a day. So you have to run `ftl start` daily or you'll get an outdated certificate error. 
-
 ## Still wanna use it?
 
 Aight! You won't regret it!
@@ -77,6 +73,7 @@ FTL uses `caddy` as web server. So let's install it. We also create an empty Cad
 ```sh
 brew install caddy
 touch /opt/homebrew/etc/Caddyfile
+caddy trust
 ```
 
 ### drush
