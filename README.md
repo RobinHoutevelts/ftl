@@ -31,13 +31,13 @@ This will configure Caddy to serve https://project.lndo.site, https://admin-proj
 
 The MariaDB container is configured as such:
 
-| name | value |
-| --- | --- |
-username | `project`
-password | `project`
-database | `project`
-hostname | `127.0.0.1`
-port | random
+| name     | value       |
+|----------|-------------|
+| username | `project`   |
+| password | `project`   |
+| database | `project`   |
+| hostname | `127.0.0.1` |
+| port     | random      |
 
 To connect to the MariaDB server you will need to know the port. You can use `ftl status` to see it.
 
@@ -45,16 +45,16 @@ If your project contains a `.env` file, the `DB_PORT` value will get updated aut
 
 ### Commands
 
- command | description
----- | ----
-`ftl start`      | Start your development environment. Automatically changes `DB_PORT` and `REDIS_PORT` in your `.env`
-`ftl stop`       | Stop/pause your development environment
-`ftl destroy`    | Destroy and delete your development environment ( removes database entirely)
-`ftl status`     | Show status of your development environment. Shows your hostnames and ports of database and redis.
-`ftl db`         | Reads your `.env` and opens your database ( in sequel pro if installed )
-`ftl db-create`  | Create an extra database
-`ftl db-export`  | Export database
-`ftl db-import`  | Import an existing database
+| command         | description                                                                                             |
+|-----------------|---------------------------------------------------------------------------------------------------------|
+| `ftl start`     | Start your development environment.<br/>Automatically changes `DB_PORT` and `REDIS_PORT` in your `.env` |
+| `ftl stop`      | Stop/pause your development environment                                                                 |
+| `ftl destroy`   | Destroy and delete your development environment ( destroys database )                                   |
+| `ftl status`    | Show status of your development environment.<br/>Shows your hostnames and ports of database and redis.  |
+| `ftl db`        | Reads your `.env` and opens your database ( in sequel pro if installed )                                |
+| `ftl db-create` | Create an extra database                                                                                |
+| `ftl db-export` | Export database                                                                                         |
+| `ftl db-import` | Import an existing database                                                                             |
 
 ## Still wanna use it?
 
