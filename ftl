@@ -1,4 +1,4 @@
-#!/usr/local/opt/php@7.4/bin/php
+#!/opt/homebrew/opt/php@8.1/bin/php
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
