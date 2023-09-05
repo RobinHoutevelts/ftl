@@ -92,6 +92,7 @@ Let's install some php on your machine
 ```sh
 brew tap shivammathur/php
 
+brew install shivammathur/php/php@8.2
 brew install shivammathur/php/php@8.1
 brew install shivammathur/php/php@8.0
 brew install shivammathur/php/php@7.4
@@ -104,7 +105,9 @@ brew install shivammathur/php/php@7.0
 Then install some much-needed modules like xdebug and redis.
 
 ```sh
-/opt/homebrew/opt/php@8.1/bin/pecl install redis xdebug-3.1.2
+/opt/homebrew/opt/php@8.2/bin/pecl install redis xdebug-3.2.2
+
+/opt/homebrew/opt/php@8.1/bin/pecl install redis xdebug-3.2.2
 
 /opt/homebrew/opt/php@8.0/bin/pecl install redis xdebug-3.1.2
 
@@ -121,10 +124,10 @@ Then install some much-needed modules like xdebug and redis.
 
 ### Configure php-packages
 
-Now we need to configure the shit out of those things
+Now we need to configure those things
 
 ```sh
-sudo nano /opt/homebrew/etc/php/8.1/php.ini
+sudo nano /opt/homebrew/etc/php/8.2/php.ini
 ```
 
 Remove the two added extensions ( we'll add them back later )
@@ -144,7 +147,7 @@ zend_extension="xdebug.so"
 xdebug.mode=develop,debug
 xdebug.start_with_request=yes
 xdebug.client_host=localhost
-xdebug.client_port=9000
+xdebug.client_port=9003
 xdebug.log_level=0
 
 [redis]
@@ -174,24 +177,24 @@ Also increase your max memory from 128M to 1G by looking for `memory_limit` and 
 + memory_limit = 1G
 ```
 
-*Perform the same steps also for php 7.0, 7.1, 7.2, 7.3, 7.4 and 8.0 ( they each have their own php.ini file)*
+*Perform the same steps also for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0 and 8.1 ( they each have their own php.ini file)*
 
 ### Configure php-fpm
 
 We need to define a port we'll listen on.
 
 ```sh
-sudo nano /opt/homebrew/etc/php/8.1/php-fpm.d/www.conf
+sudo nano /opt/homebrew/etc/php/8.2/php-fpm.d/www.conf
 ````
 
-Replace the default listing port from `9000` to `9181`
+Replace the default listing port from `9000` to `9182`
 
 ```diff
 - ;listen = 127.0.0.1:9000
-+ listen = 127.0.0.1:9181
++ listen = 127.0.0.1:9182
 ```
 
-Do the same for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0 but use ports `9170`, `9171`, `9172`, `9173`, `9174`, `9180`
+Do the same for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1 but use ports `9170`, `9171`, `9172`, `9173`, `9174`, `9180`, `9181`
 
 ### Restart the services
 
@@ -200,6 +203,7 @@ Your php-processes will run as `root` and you'll get random permission errors wh
 
 ```sh
 brew services restart php
+brew services restart php@8.1
 brew services restart php@8.0
 brew services restart php@7.4
 brew services restart php@7.3
@@ -262,7 +266,7 @@ It makes sure all executables are first searched for in my `~/bin` directory. Th
 
 ```sh
 #!/usr/bin/env bash
-DEFAULT_PHP_VERSION="7.4"
+DEFAULT_PHP_VERSION="8.1"
 
 ROOTDIR=$(pwd)
 
@@ -294,36 +298,6 @@ Make sure to make it executable
 
 ```sh
 chmod +x ~/bin/php
-```
-
-### Alias `ftl` binary
-
-I do the same for the ftl binary. Sometimes I got an error some shared libaries aren't loaded when using php. This is because we have multiple php versions installed. 
-
-```
-dyld: Library not loaded: /opt/homebrew/opt/icu4c/lib/libicuio.67.dylib
-  Referenced from: /opt/homebrew/opt/php@7.4/bin/php
-  Reason: image not found
-```
-
-I need to make sure icu4c version 67 is loaded. If your error says a different version, use `brew list --versions icu4c` to see what version you can hardcode.
-
-Hardcode the version in `~/bin/ftl`. Make sure you also change the path to ftl. I have mine at `~/Projects/ftl`
-
-```bash
-#!/usr/bin/env bash
-
-# Uncomment this if you have icu4c version mismatches
-# brew switch icu4c 67.1  > /dev/null 2>&1
-
-$HOME/Projects/ftl/ftl "$@"
-exit $?
-```
-
-Make sure to make it executable
-
-```sh
-chmod +x ~/bin/ftl
 ```
 
 ### Xdebug

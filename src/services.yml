@@ -1,7 +1,7 @@
 parameters:
     config:
         hostname: lndo.site
-        defaultPhpVersion: 7.4
+        defaultPhpVersion: 8.1
         defaultWebroot: public
         dockerBin: /usr/local/bin/docker
         brewBin: /usr/local/bin/brew
@@ -9,6 +9,7 @@ parameters:
         caddyDir: '$HOME/Library/Application Support/Caddy'
         caddyService: caddy
         fpmProxies:
+            '8.2': 'localhost:9182'
             '8.1': 'localhost:9181'
             '8.0': 'localhost:9180'
             '7.4': 'localhost:9174'
