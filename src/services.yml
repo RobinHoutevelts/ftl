@@ -1,6 +1,6 @@
 parameters:
     config:
-        hostname: lndo.site
+        hostnames: [lndo.site]
         defaultPhpVersion: 8.1
         defaultWebroot: public
         dockerBin: /usr/local/bin/docker

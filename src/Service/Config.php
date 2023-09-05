@@ -66,12 +66,27 @@ class Config
 
         $phpVersion = $lando['config']['php'] ?? $ftlConfig['defaultPhpVersion'];
         $webroot = $lando['config']['webroot'] ?? $ftlConfig['defaultWebroot'];
-        $hostnames = [
-            // foobar.dev.kzen.pro
-            sprintf('%s.%s', $lando['name'], $ftlConfig['hostname']),
-            // admin-foobar.dev.kzen.pro
-            sprintf('admin-%s.%s', $lando['name'], $ftlConfig['hostname'])
-        ];
+        if (isset($ftlConfig['hostname'])) {
+            error_log('The "hostname" config option is deprecated. Please use "hostnames" instead.', E_USER_DEPRECATED);
+            $ftlConfig['hostnames'] = array_merge(
+                $ftlConfig['hostnames'] ?? [],
+                [$ftlConfig['hostname']]
+            );
+        }
+
+        $ftlConfig['hostnames'] = array_unique($ftlConfig['hostnames'] ?? []);
+        if (empty($ftlConfig['hostnames'])) {
+            throw new \RuntimeException('No "hostnames" defined in config.');
+        }
+
+        $hostnames = [];
+        foreach ($ftlConfig['hostnames'] as $hostname) {
+            // foobar.lndo.site
+            $hostnames[] = sprintf('%s.%s', $lando['name'], $hostname);
+            // admin-foobar.lndo.site
+            $hostnames[] = sprintf('admin-%s.%s', $lando['name'], $hostname);
+        }
+
         if (!empty($lando['proxy']['appserver_nginx'])) {
             $hostnames = array_merge($hostnames, $lando['proxy']['appserver_nginx']);
         }
