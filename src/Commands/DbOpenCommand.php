@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Service\Docker;
 use App\Service\DotEnv;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,14 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DbOpenCommand extends Command
 {
     protected static $defaultName = 'db';
-    private DotEnv $dotenv;
 
-    public function __construct(DotEnv $dotenv, string $name = null)
+    public function __construct(
+        private DotEnv $dotenv,
+        private Docker $docker,
+        string $name = null,
+    )
     {
         parent::__construct($name);
         $this->setDescription('Open your database');
-
-        $this->dotenv = $dotenv;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -37,6 +39,11 @@ class DbOpenCommand extends Command
             !isset($env['DB_HOST'], $env['DB_USERNAME'], $env['DB_PASSWORD'])
         ) {
             return null;
+        }
+
+        if ($env['DB_HOST'] === 'database' && empty($env['DB_PORT'])) {
+            $env['DB_HOST'] = '127.0.0.1';
+            $env['DB_PORT'] = $this->docker->getPortForwards()['database'];
         }
 
         return sprintf(

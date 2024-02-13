@@ -26,7 +26,7 @@ services:
     ports:
       - '6379'
 
-  mysql:
+  database:
     image: 'bitnami/mariadb:10.4'
     environment:
       ALLOW_EMPTY_PASSWORD: 'yes'
@@ -50,13 +50,17 @@ YAML;
 
     public function startDockerServices(): void
     {
+        if ($this->config->isLando()) {
+            throw new \RuntimeException('Lando is managing the project. You should use lando start');
+        }
+
         $compose = $this->createMysqlAndRedisDockerCompose();
         file_put_contents(
             sprintf('%s/.docker-compose.yml.dev', $this->config->projectDir),
             $compose
         );
 
-        $process = $this->process(['up', '-d']);
+        $process = $this->process(['up', '-d'], true);
         if ($process->run() !== 0) {
             throw new \RuntimeException(
                 sprintf('Error while booting docker-compose services.: %s', $process->getOutput())
@@ -79,8 +83,8 @@ YAML;
     public function getPortForwards(): array
     {
         $ports = [];
-        foreach (['redis' => 6379, 'mysql' => 3306] as $service => $port) {
-            // docker-compose -p <projectName> -f .docker-compose.yml.dev port redis 6379
+        foreach (['redis' => 6379, 'database' => 3306] as $service => $port) {
+            // docker-compose -p <projectName> port redis 6379
             $process = $this->process(['port', $service, $port]);
             if ($process->run() !== 0) {
                 throw new \RuntimeException(sprintf('Error while fetching %s port.', $service));
@@ -88,7 +92,7 @@ YAML;
             $matches = [];
             preg_match('/:(\d+)$/', trim($process->getOutput()), $matches);
             $forwardedPort = $matches[1] ?? null;
-            if (!$forwardedPort) {
+            if (!$forwardedPort && $forwardedPort !== '0') {
                 throw new \RuntimeException(sprintf('Error while parsing %s port.', $service));
             }
             $ports[$service] = $forwardedPort;
@@ -99,18 +103,21 @@ YAML;
 
     public function destroyDockerServices(): void
     {
-        // docker-compose -p <projectName> -f .docker-compose.yml down --volumes
+        // docker-compose -p <projectName> down --volumes
         $this->process(['down', '--volumes'])->run();
     }
 
-    private function process(array $command): Process
+    private function process(array $command, bool $includeComposeFile = false): Process
     {
         $dockerCommand = [
             // docker-compose -p <projectName> -f .docker-compose.yml
-            $this->config->config['dockerBin'], 'compose', '-p', $this->config->name, '-f', '.docker-compose.yml.dev'
+            $this->config->config['dockerBin'], 'compose', '-p', $this->config->name,
         ];
+        if ($includeComposeFile) {
+            $dockerCommand = [...$dockerCommand, ...['-f', '.docker-compose.yml.dev']];
+        }
 
-        // docker-compose -p <projectName> -f .docker-compose.yml <command>
+        // docker-compose -p <projectName> [-f .docker-compose.yml] <command>
         return new Process(array_merge($dockerCommand, $command), $this->config->projectDir);
     }
 }

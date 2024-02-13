@@ -49,7 +49,7 @@ class StatusCommand extends Command
         } catch (\RuntimeException $e) {
             // noop
         }
-        $ports += ['redis' => 'na', 'mysql' => 'na'];
+        $ports += ['redis' => 'na', 'database' => 'na'];
 
         $output->writeln('');
         $output->writeln('Status of port forwards: ');

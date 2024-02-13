@@ -101,4 +101,10 @@ class Config
             $ftlConfig,
         );
     }
+
+    public function isLando(): bool
+    {
+        return $this->lando['is_lando'] ?? false;
+    }
+
 }

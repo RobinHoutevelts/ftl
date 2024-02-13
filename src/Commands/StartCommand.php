@@ -62,7 +62,7 @@ class StartCommand extends Command
         $lines = file($dotEnvFile);
         foreach ($lines as &$line) {
             if (strpos($line, 'DB_PORT=') === 0 && strpos($line, 'DB_PORT=3306') !== 0) {
-                $line = sprintf('DB_PORT=%s', $ports['mysql']) . "\n";
+                $line = sprintf('DB_PORT=%s', $ports['database']) . "\n";
                 $replaced = true;
                 continue;
             }
