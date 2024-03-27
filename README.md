@@ -92,6 +92,7 @@ Let's install some php on your machine
 ```sh
 brew tap shivammathur/php
 
+brew install shivammathur/php/php@8.3
 brew install shivammathur/php/php@8.2
 brew install shivammathur/php/php@8.1
 brew install shivammathur/php/php@8.0
@@ -105,9 +106,11 @@ brew install shivammathur/php/php@7.0
 Then install some much-needed modules like xdebug and redis.
 
 ```sh
-/opt/homebrew/opt/php@8.2/bin/pecl install redis xdebug-3.2.2
+/opt/homebrew/opt/php@8.3/bin/pecl install redis xdebug-3.3.1
 
-/opt/homebrew/opt/php@8.1/bin/pecl install redis xdebug-3.2.2
+/opt/homebrew/opt/php@8.2/bin/pecl install redis xdebug-3.3.1
+
+/opt/homebrew/opt/php@8.1/bin/pecl install redis xdebug-3.3.1
 
 /opt/homebrew/opt/php@8.0/bin/pecl install redis xdebug-3.1.2
 
@@ -127,7 +130,7 @@ Then install some much-needed modules like xdebug and redis.
 Now we need to configure those things
 
 ```sh
-sudo nano /opt/homebrew/etc/php/8.2/php.ini
+sudo nano /opt/homebrew/etc/php/8.3/php.ini
 ```
 
 Remove the two added extensions ( we'll add them back later )
@@ -177,24 +180,24 @@ Also increase your max memory from 128M to 1G by looking for `memory_limit` and 
 + memory_limit = 1G
 ```
 
-*Perform the same steps also for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0 and 8.1 ( they each have their own php.ini file)*
+*Perform the same steps also for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1 and 8.2 ( they each have their own php.ini file)*
 
 ### Configure php-fpm
 
 We need to define a port we'll listen on.
 
 ```sh
-sudo nano /opt/homebrew/etc/php/8.2/php-fpm.d/www.conf
+sudo nano /opt/homebrew/etc/php/8.3/php-fpm.d/www.conf
 ````
 
-Replace the default listing port from `9000` to `9182`
+Replace the default listing port from `9000` to `9183`
 
 ```diff
 - ;listen = 127.0.0.1:9000
-+ listen = 127.0.0.1:9182
++ listen = 127.0.0.1:9183
 ```
 
-Do the same for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1 but use ports `9170`, `9171`, `9172`, `9173`, `9174`, `9180`, `9181`
+Do the same for php 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2 but use ports `9170`, `9171`, `9172`, `9173`, `9174`, `9180`, `9181`, `9182`
 
 ### Restart the services
 
@@ -203,6 +206,7 @@ Your php-processes will run as `root` and you'll get random permission errors wh
 
 ```sh
 brew services restart php
+brew services restart php@8.2
 brew services restart php@8.1
 brew services restart php@8.0
 brew services restart php@7.4
